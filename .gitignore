@@ -1,0 +1,10 @@
+/Makefile
+/Makefile.in
+73-seat-late.rules
+aclocal.m4
+config.log
+config.status
+configure
+install-sh
+missing
+autom4te.cache
