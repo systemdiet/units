@@ -312,12 +312,27 @@ CLEANFILES += \
 	default/systemd-udev-trigger.service \
 	default/systemd-udev-settle.service
 
+SOCKETS_TARGET_WANTS += \
+	systemd-udevd-control.socket \
+	systemd-udevd-kernel.socket
+
+SYSINIT_TARGET_WANTS += \
+	systemd-udevd.service \
+	systemd-udev-trigger.service
+
 dist_systemunit_DATA += \
 	default/systemd-journald.socket
 
 nodist_systemunit_DATA += \
 	default/systemd-journald.service \
 	default/systemd-journal-flush.service
+
+SOCKETS_TARGET_WANTS += \
+	systemd-journald.socket
+
+SYSINIT_TARGET_WANTS += \
+	systemd-journald.service \
+	systemd-journal-flush.service
 
 EXTRA_DIST += \
 	default/systemd-journald.service.in \
@@ -342,11 +357,18 @@ nodist_systemunit_DATA += \
 EXTRA_DIST += \
 	default/systemd-binfmt.service.in
 
+SYSINIT_TARGET_WANTS += \
+	systemd-binfmt.service \
+	proc-sys-fs-binfmt_misc.automount
+
 nodist_systemunit_DATA += \
 	default/systemd-vconsole-setup.service
 
 EXTRA_DIST += \
 	default/systemd-vconsole-setup.service.in
+
+SYSINIT_TARGET_WANTS += \
+	systemd-vconsole-setup.service
 
 nodist_systemunit_DATA += \
 	default/systemd-quotacheck.service
@@ -363,6 +385,9 @@ nodist_systemunit_DATA += \
 EXTRA_DIST += \
 	default/systemd-random-seed.service.in
 
+SYSINIT_TARGET_WANTS += \
+	systemd-random-seed.service
+
 nodist_systemunit_DATA += \
 	default/systemd-backlight@.service
 
@@ -372,6 +397,9 @@ EXTRA_DIST += \
 dist_systemunit_DATA += \
 	default/cryptsetup.target \
 	default/cryptsetup-pre.target
+
+SYSINIT_TARGET_WANTS += \
+	cryptsetup.target
 
 nodist_systemunit_DATA += \
 	default/systemd-logind.service \
@@ -434,10 +462,12 @@ SOCKETS_TARGET_WANTS += \
 
 SYSINIT_TARGET_WANTS += \
 	systemd-update-utmp.service
+
 LOCAL_FS_TARGET_WANTS += \
 	systemd-remount-fs.service \
 	systemd-fsck-root.service \
 	tmp.mount
+
 MULTI_USER_TARGET_WANTS += \
 	getty.target \
 	systemd-ask-password-wall.path
