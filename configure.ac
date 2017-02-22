@@ -13,16 +13,25 @@ AM_SILENT_RULES([yes])
 AC_PROG_MKDIR_P
 AC_PATH_PROG([M4], [m4])
 AC_PROG_SED
+AC_PROG_LN_S
 
 AC_PATH_PROG([QUOTAON], [quotaon], [/usr/sbin/quotaon], [$PATH:/usr/sbin:/sbin])
 AC_PATH_PROG([QUOTACHECK], [quotacheck], [/usr/sbin/quotacheck], [$PATH:/usr/sbin:/sbin])
 AC_PATH_PROG([KILL], [kill], [/usr/bin/kill], [$PATH:/usr/sbin:/sbin])
 AC_PATH_PROG([KMOD], [kmod], [/usr/bin/kmod], [$PATH:/usr/sbin:/sbin])
 
+PKG_CHECK_MODULES(DBUS, [dbus-1 >= 1.3.2])
+
 AC_ARG_WITH([rootprefix],
          AS_HELP_STRING([--with-rootprefix=DIR], [rootfs directory prefix for config files and kernel modules]),
          [], [with_rootprefix=${ac_default_prefix}])
 AC_SUBST([rootprefix], [$with_rootprefix])
+
+AC_ARG_WITH([dbussessionservicedir],
+        AS_HELP_STRING([--with-dbussessionservicedir=DIR], [D-Bus session service directory]),
+        [],
+        [with_dbussessionservicedir=$($PKG_CONFIG --variable=session_bus_services_dir dbus-1)])
+AC_SUBST([dbussessionservicedir], [$with_dbussessionservicedir])
 
 have_quotacheck=no
 AC_ARG_ENABLE(quotacheck, AS_HELP_STRING([--disable-quotacheck], [disable quotacheck tools]))
@@ -52,6 +61,7 @@ AC_MSG_RESULT([
 
         prefix:                  ${prefix}
         rootprefix:              ${rootprefix}
+        D-Bus session dir:       ${with_dbussessionservicedir}
         quotacheck:              ${have_quotacheck}
         kmod:                    ${have_kmod}
 ])

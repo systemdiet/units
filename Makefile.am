@@ -7,10 +7,12 @@ rootprefix=@rootprefix@
 rootbindir=$(rootprefix)/bin
 rootlibexecdir=$(rootprefix)/lib/systemd
 
+pkgsysconfdir=$(sysconfdir)/systemd
 userunitdir=$(prefix)/lib/systemd/user
 userpresetdir=$(prefix)/lib/systemd/user-preset
 systemunitdir=$(rootprefix)/lib/systemd/system
 systempresetdir=$(rootprefix)/lib/systemd/system-preset
+dbussessionservicedir=@dbussessionservicedir@
 
 AM_V_M4 = $(AM_V_M4_$(V))
 AM_V_M4_ = $(AM_V_M4_$(AM_DEFAULT_VERBOSITY))
@@ -52,6 +54,16 @@ CLEANFILES = $(BUILT_SOURCES) \
 	$(in_files:.in=) $(in_in_files:.in.in=) \
 	$(m4_files:.m4=)
 
+INSTALL_DIRS += \
+	$(dbussessionservicedir) \
+	$(sysconfdir)/xdg/systemd \
+	$(pkgsysconfdir)/system \
+	$(pkgsysconfdir)/user \
+	$(pkgsysconfdir)/system/multi-user.target.wants \
+	$(pkgsysconfdir)/system/getty.target.wants
+
+install-directories-hook:
+	$(MKDIR_P) $(addprefix $(DESTDIR),$(INSTALL_DIRS))
 
 substitutions = \
 		'|rootlibexecdir=$(rootlibexecdir)|' \
@@ -61,6 +73,7 @@ substitutions = \
 		'|SUSHELL=$(SUSHELL)|' \
 		'|KMOD=$(KMOD)|' \
 		'|KILL=$(KILL)|' \
+		'|pkgsysconfdir=$(pkgsysconfdir)|' \
 		'|systemunitdir=$(systemunitdir)|' \
 		'|userunitdir=$(userunitdir)|'
 
@@ -491,8 +504,20 @@ RUNLEVEL4_TARGET_WANTS += \
 RUNLEVEL5_TARGET_WANTS += \
 	systemd-update-utmp-runlevel.service
 
+install-exec-hook: $(INSTALL_EXEC_HOOKS)
+
+uninstall-hook: $(UNINSTALL_DATA_HOOKS) $(UNINSTALL_EXEC_HOOKS)
+
+install-data-hook: $(INSTALL_DATA_HOOKS)
+
+distclean-local: $(DISTCLEAN_LOCAL_HOOKS)
+
+clean-local: $(CLEAN_LOCAL_HOOKS)
+	rm -rf $(abs_srcdir)/install-tree
+
 DISTCHECK_CONFIGURE_FLAGS = \
-	--with-rootprefix=$$dc_install_base
+	--with-rootprefix=$$dc_install_base \
+	--with-dbussessionservicedir=$$dc_install_base/$(dbussessionservicedir)
 
 default/%: default/%.in
 	$(SED_PROCESS)
